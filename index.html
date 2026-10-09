@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#00807C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Levantamento de Postes</title>
+<style>
+:root{--bg:#f2f6f6;--card:#fff;--ink:#1f2a2a;--mut:#626366;--line:#cdd9d9;--pri:#00807C;--pri2:#006a66;--amb:#EEA722;--ok:#1e8e4e;--reg:#c98a00;--bad:#c0392b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:20;background:#fff;color:var(--ink);padding:env(safe-area-inset-top) 0 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+header .top{display:flex;align-items:center;gap:10px;padding:8px 12px}
+header .top img{height:30px;width:auto;display:block}
+header .top .tit{flex:1;min-width:0;border-left:1.5px solid var(--line);padding-left:10px}
+header h1{font-size:15px;margin:0;font-weight:650;color:var(--pri);line-height:1.2}
+header .cont{font-size:13px;color:var(--mut)}
+nav{display:flex;background:var(--pri);border-bottom:3px solid var(--amb)}
+nav button{flex:1;background:none;border:0;color:#d4ecea;font:inherit;font-size:15px;padding:11px 4px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
+nav button.on{color:#fff;border-bottom-color:var(--amb);font-weight:600}
+main{padding:12px 12px 120px;max-width:680px;margin:0 auto}
+.view{display:none}.view.on{display:block}
+.card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.card h2{font-size:16px;margin:0 0 10px;color:var(--pri)}
+.card h3{font-size:15px;margin:14px 0 6px}
+label,.lbl{display:block;font-size:14px;color:var(--mut);margin:12px 0 4px}
+label:first-child,.lbl:first-child{margin-top:0}
+input,textarea{width:100%;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);min-height:48px}
+input:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(0,128,124,.18)}
+input.big{font-size:22px;font-weight:650;letter-spacing:.5px}
+textarea{min-height:96px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 0;min-width:70px;min-height:48px;font:inherit;font-size:16px;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:6px 8px}
+.seg.g2{display:grid;grid-template-columns:1fr 1fr}
+.seg button.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:600}
+.seg button.on.v-bom{background:var(--ok);border-color:var(--ok)}
+.seg button.on.v-regular{background:var(--reg);border-color:var(--reg)}
+.seg button.on.v-ruim{background:var(--bad);border-color:var(--bad)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chips:empty{display:none}
+.chips button{font:inherit;font-size:15px;background:#e3f2f1;border:1px solid #bfdedc;color:var(--pri2);border-radius:20px;padding:7px 12px;min-height:38px}
+.btn{font:inherit;min-height:48px;border-radius:9px;border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;font-size:16px}
+.btn.primary{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:600}
+.btn.amber{background:var(--amb);border-color:var(--amb);color:#1d1600;font-weight:650}
+.btn.danger{color:var(--bad);border-color:#e6b5af}
+.btn.block{width:100%;margin-top:8px}
+.btnrow{display:flex;gap:8px;margin-top:8px}.btnrow .btn{flex:1}
+.link{background:none;border:0;color:var(--pri2);font:inherit;font-size:15px;text-decoration:underline;padding:6px 0}
+.rowb{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.gps{border-radius:9px;padding:10px 12px;font-size:15px;background:#eef4f4;border:1.5px dashed var(--line)}
+.gps.ok{background:#e7f5ec;border:1.5px solid #a9d8bb}
+.gps.warn{background:#fff5df;border:1.5px solid #ecd08a}
+.gps.err{background:#fdecea;border:1.5px solid #ecb3ad}
+.gps b{font-size:16px}
+.rep{border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;background:#fafbfc}
+.rep .rowb strong{font-size:15px}
+.x{background:none;border:0;color:var(--bad);font:inherit;font-size:15px;padding:6px 4px;min-height:40px}
+.num{display:flex;align-items:center;gap:8px}
+.num button{width:56px;min-height:48px;font-size:24px;border-radius:9px;border:1.5px solid var(--line);background:#fff}
+.num input{text-align:center;font-size:20px;font-weight:600}
+.thumb{display:flex;gap:10px;align-items:center;margin-top:8px}
+.thumb img{width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.sub{padding-left:10px;border-left:3px solid #dfe6ec;margin-top:6px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--line);padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);display:flex;gap:8px}
+.bar .btn{flex:1}.bar .btn.primary{flex:1.6}
+.item{display:block;width:100%;text-align:left;background:#fff;border:0;border-radius:10px;padding:12px 14px;margin-bottom:8px;font:inherit;color:inherit;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.item .n{font-weight:650;font-size:18px}
+.item .s{font-size:14px;color:var(--mut);margin-top:2px}
+.tag{display:inline-block;font-size:12px;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:2px;font-weight:600}
+.tag.w{background:#fff0c9;color:#7a5700}.tag.r{background:#fbdcd8;color:#8e2219}.tag.g{background:#e3f2f1;color:var(--pri2)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:#eef6f6;border-radius:9px;padding:10px}
+.stat b{display:block;font-size:24px;color:var(--pri)}
+.stat span{font-size:13px;color:var(--mut)}
+.note{font-size:14px;color:var(--mut);margin:6px 0 0}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#17222c;color:#fff;padding:11px 16px;border-radius:9px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:90%;text-align:center}
+#toast.on{opacity:1}
+#install{display:none}
+#pdfDlg{display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);align-items:flex-end;justify-content:center;padding:12px}
+#pdfDlg.on{display:flex}
+#pdfDlg .card{width:100%;max-width:480px;margin:0}
+#relView{display:none;position:fixed;inset:0;z-index:40;background:#fff;overflow:auto}
+#relView.on{display:block}
+#relView .relbar{position:sticky;top:0;background:var(--pri);padding:10px 12px calc(10px);display:flex;gap:8px}
+#relView .relbar .btn{flex:1}
+@media print{
+  body>*:not(#relView){display:none!important}
+  #relView{position:static;display:block;overflow:visible}
+  #relView .relbar{display:none}
+}
+</style>
+<style id="relCss">
+.rel{--vale:#00807C;--vale-am:#EEA722;--vale-ci:#77787B;font:12px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2a2a;padding:16px;max-width:1100px;margin:0 auto}
+.rel .cab{display:flex;align-items:center;gap:16px;padding-bottom:10px}
+.rel .cab img{height:44px;width:auto}
+.rel .faixa{height:5px;background:linear-gradient(90deg,var(--vale) 0 82%,var(--vale-am) 82% 100%);margin-bottom:12px}
+.rel h1{font-size:20px;margin:0 0 2px;color:var(--vale)}
+.rel h2{font-size:14px;margin:18px 0 6px;color:var(--vale);border-bottom:1.5px solid var(--vale);padding-bottom:3px}
+.rel .meta{color:var(--vale-ci);margin:0}
+.rel .kpis{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.rel .kpi{border:1px solid #d5dede;border-left:4px solid var(--vale);border-radius:4px;padding:6px 10px;min-width:110px;color:var(--vale-ci)}
+.rel .kpi b{display:block;font-size:18px;color:var(--vale)}
+.rel .kpi.am{border-left-color:var(--vale-am)}
+.rel table{border-collapse:collapse;width:100%;margin:4px 0 8px}
+.rel th,.rel td{border:1px solid #d5dede;padding:3px 5px;text-align:left;vertical-align:top}
+.rel th{background:var(--vale);color:#fff;font-weight:600}
+.rel tbody tr:nth-child(even) td{background:#f2f8f8}
+.rel td.n,.rel th.n{text-align:right}
+.rel .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0 16px}
+.rel .full td,.rel .full th{font-size:10.5px}
+.rel .vazio{color:var(--vale-ci)}
+@page{size:A4 landscape;margin:10mm}
+@media print{.rel{padding:0;max-width:none}.rel tr{break-inside:avoid}.rel h2{break-after:avoid}.rel th,.rel tbody tr td{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <img src="logo-vale.png" alt="Vale">
+    <div class="tit"><h1>Levantamento de Postes</h1><span class="cont" id="cont">0 postes</span></div>
+  </div>
+  <nav>
+    <button data-tab="cad" class="on">Cadastro</button>
+    <button data-tab="lista">Postes</button>
+    <button data-tab="exp">Exportar</button>
+  </nav>
+</header>
+
+<main>
+  <section class="view on" id="v-cad"><div id="form"></div></section>
+
+  <section class="view" id="v-lista">
+    <div class="card">
+      <input id="q" type="search" placeholder="Buscar por número ou circuito" autocomplete="off">
+    </div>
+    <div id="lista"></div>
+  </section>
+
+  <section class="view" id="v-exp">
+    <div class="card" id="install">
+      <h2>Instalar na tela inicial</h2>
+      <p class="note" style="margin-top:0">Instalado, o app abre como aplicativo e funciona sem internet.</p>
+      <button class="btn primary block" data-act="instalar">Instalar app</button>
+    </div>
+    <div class="card">
+      <h2>Resumo</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="card">
+      <h2>Entregar</h2>
+      <button class="btn primary block" data-act="relatorio">Relatório final</button>
+      <button class="btn block" data-act="kml">Arquivo para o Google Earth (KML)</button>
+      <button class="btn block" data-act="csv">Planilha (CSV para Excel)</button>
+      <p class="note">Os arquivos vão para a pasta Downloads do celular.</p>
+    </div>
+    <div class="card">
+      <h2>Backup</h2>
+      <p class="note" style="margin-top:0">Os dados ficam só neste celular. Faça um backup no fim de cada dia e guarde fora do aparelho (Drive, e-mail ou WhatsApp).</p>
+      <label style="display:flex;align-items:center;gap:10px;color:var(--ink);font-size:16px;margin-top:10px"><input type="checkbox" id="bkFotos" style="width:24px;min-height:24px"> Incluir fotos no backup</label>
+      <button class="btn block" data-act="backup">Fazer backup (JSON)</button>
+      <button class="btn block" data-act="importar">Restaurar backup</button>
+      <input type="file" id="impIn" accept=".json,application/json" hidden>
+    </div>
+    <div class="card">
+      <h2>Numeração automática</h2>
+      <div class="two">
+        <div><label>Prefixo</label><input id="cfgPre"></div>
+        <div><label>Dígitos</label><input id="cfgDig" type="number" inputmode="numeric" min="1" max="8"></div>
+      </div>
+      <p class="note" id="cfgEx"></p>
+    </div>
+  </section>
+</main>
+
+<div class="bar" id="bar"></div>
+<div id="relView"><div class="relbar"><button class="btn" data-act="fecharRel">Voltar</button><button class="btn amber" data-act="gerarPdf">Gerar PDF</button><button class="btn" data-act="baixarRel">Baixar HTML</button></div><div id="relBody"></div></div>
+<div id="pdfDlg"><div class="card">
+  <h2>PDF pronto</h2>
+  <p class="note" id="pdfNome" style="margin-top:0"></p>
+  <button class="btn primary block" data-act="pdfPasta">Salvar em uma pasta</button>
+  <button class="btn block" data-act="pdfBaixar">Baixar (pasta Downloads)</button>
+  <button class="btn block" data-act="pdfFechar">Fechar</button>
+</div></div>
+<input type="file" id="fotoIn" accept="image/*" capture="environment" hidden>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const slug = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-');
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const clone = o => JSON.parse(JSON.stringify(o));
+const parseNum = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : null; };
+const br = n => n == null ? '' : String(n).replace('.', ',');
+const pad2 = n => String(n).padStart(2, '0');
+const fmtData = iso => { if (!iso) return ''; const d = new Date(iso); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+const hoje = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+let toastT;
+function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
+
+/* ---------- banco local (IndexedDB) ---------- */
+let db;
+function abrirDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('levantamento-postes', 1);
+    r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('postes', { keyPath: 'id' }); d.createObjectStore('fotos'); };
+    r.onsuccess = () => { db = r.result; res(); };
+    r.onerror = () => rej(r.error);
+  });
+}
+function req(store, mode, fn) {
+  return new Promise((res, rej) => {
+    const t = db.transaction(store, mode); const r = fn(t.objectStore(store));
+    t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+  });
+}
+const dbTodos = () => req('postes', 'readonly', s => s.getAll());
+const dbSalvar = p => req('postes', 'readwrite', s => s.put(p));
+const dbExcluir = id => req('postes', 'readwrite', s => s.delete(id));
+const fotoLer = id => req('fotos', 'readonly', s => s.get(id));
+const fotoSalvar = (id, data) => req('fotos', 'readwrite', s => s.put(data, id));
+const fotoExcluir = id => req('fotos', 'readwrite', s => s.delete(id));
+const fotosTodas = () => new Promise((res, rej) => {
+  const out = {}; const t = db.transaction('fotos', 'readonly'); const c = t.objectStore('fotos').openCursor();
+  c.onsuccess = () => { const cur = c.result; if (cur) { out[cur.key] = cur.value; cur.continue(); } };
+  t.oncomplete = () => res(out); t.onerror = () => rej(t.error);
+});
+
+/* ---------- estado ---------- */
+let postes = [];
+let f;               // formulário atual
+let editId = null;   // id do poste em edição
+let foto = null;     // foto atual (dataURL)
+let fotoMudou = false;
+let gpsManual = false;
+let sug = {};        // sugestões por campo
+let cfg = { prefixo: 'P-', digitos: 4 };
+try { Object.assign(cfg, JSON.parse(localStorage.getItem('postes_cfg') || '{}')); } catch (e) {}
+
+const circVazio = () => ({ id: '', pos: '', estr: '' });
+const eqVazio = () => ({ tipo: '', modelo: '', tag: '', espec: '', circ: '' });
+const vazio = () => ({ numero: '', lat: null, lon: null, acc: null, gpsManual: false, espec: '', circuitos: [circVazio()],
+  eq: '', equipamentos: [], estEstado: '', estObs: '', pr: '', prQtd: null, prEstado: '', at: '', atCirc: '', atEstado: '',
+  em: '', emLocal: '', emEstado: '', espQtd: null, espModelo: '', bt: '', ilum: '', fibra: '', atencao: '' });
+
+/* ---------- numeração ---------- */
+function seqDe(numero) {
+  if (!numero || !numero.startsWith(cfg.prefixo)) return null;
+  const m = numero.slice(cfg.prefixo.length).match(/^(\d+)$/); return m ? parseInt(m[1], 10) : null;
+}
+function proximoNumero() {
+  let max = 0; for (const p of postes) { const s = seqDe(p.numero); if (s != null && s > max) max = s; }
+  return cfg.prefixo + String(max + 1).padStart(cfg.digitos, '0');
+}
+
+/* ---------- sugestões (valores já usados) ---------- */
+function calcSug() {
+  const c = {}; const add = (k, v) => { v = String(v ?? '').trim(); if (!v) return; (c[k] ||= {}); c[k][v] = (c[k][v] || 0) + 1; };
+  for (const p of postes) {
+    add('espec', p.espec); add('espModelo', p.espModelo);
+    for (const x of p.circuitos || []) { add('circ', x.id); add('estr', x.estr); }
+    for (const e of p.equipamentos || []) { add('eqModelo', e.modelo); add('eqEspec', e.espec); }
+  }
+  sug = {}; for (const k in c) sug[k] = Object.entries(c[k]).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+}
+function opcoesSug(chave, atual) {
+  let lista;
+  if (chave === 'circAtual') {
+    const doPoste = f.circuitos.map(c => c.id.trim()).filter(Boolean);
+    lista = [...new Set([...doPoste, ...(sug.circ || [])])];
+  } else lista = sug[chave] || [];
+  const a = String(atual || '').trim().toLowerCase();
+  return lista.filter(v => v.toLowerCase() !== a && (!a || v.toLowerCase().includes(a))).slice(0, 6);
+}
+function atualizarChips(input) {
+  const box = input.nextElementSibling; if (!box || !box.classList.contains('chips')) return;
+  box.innerHTML = opcoesSug(input.dataset.sug, input.value).map(v => `<button type="button" data-chip="${esc(v)}">${esc(v)}</button>`).join('');
+}
+const atualizarTodosChips = () => document.querySelectorAll('#form [data-sug]').forEach(atualizarChips);
+
+/* ---------- formulário ---------- */
+const bindK = k => `data-k="${k}"`;
+const bindA = (arr, i, p) => `data-arr="${arr}" data-i="${i}" data-p="${p}"`;
+const seg = (bind, opts, cur) => `<div class="seg${opts.length > 3 ? ' g2' : ''}">${opts.map(o => `<button type="button" ${bind} data-v="${esc(o)}" class="${cur === o ? 'on ' : ''}v-${slug(o)}">${esc(o)}</button>`).join('')}</div>`;
+const inp = (bind, val, ph, chave, extra = '') => `<input ${bind} value="${esc(val)}" placeholder="${esc(ph)}" ${chave ? `data-sug="${chave}"` : ''} autocomplete="off" autocapitalize="characters" ${extra}>${chave ? '<div class="chips"></div>' : ''}`;
+const SN = ['Sim', 'Não'], EST = ['Bom', 'Regular', 'Ruim'];
+
+function renderForm() {
+  const circs = f.circuitos.map((c, i) => `
+    <div class="rep">
+      <div class="rowb"><strong>Circuito ${i + 1}</strong><button type="button" class="x" data-act="rmCirc" data-i="${i}">Remover</button></div>
+      <label>Circuito</label>${inp(bindA('circuitos', i, 'id'), c.id, 'ex: C12', 'circ')}
+      <label>Posição</label>${seg(bindA('circuitos', i, 'pos'), ['Superior', 'Médio', 'Inferior'], c.pos)}
+      <label>Estrutura</label>${inp(bindA('circuitos', i, 'estr'), c.estr, 'ex: CE3', 'estr')}
+    </div>`).join('');
+
+  const eqs = f.equipamentos.map((e, i) => `
+    <div class="rep">
+      <div class="rowb"><strong>Equipamento ${i + 1}</strong><button type="button" class="x" data-act="rmEq" data-i="${i}">Remover</button></div>
+      <label>Tipo</label>${seg(bindA('equipamentos', i, 'tipo'), ['Transformador', 'Religador', 'Chave SF6', 'Outro'], e.tipo)}
+      <label>Modelo</label>${inp(bindA('equipamentos', i, 'modelo'), e.modelo, 'ex: SF-6040KS-08', 'eqModelo')}
+      <label>TAG</label>${inp(bindA('equipamentos', i, 'tag'), e.tag, 'TAG do equipamento', '')}
+      <label>Especificação</label>${inp(bindA('equipamentos', i, 'espec'), e.espec, 'ex: SF6 34,5 kV', 'eqEspec')}
+      <label>Circuito</label>${inp(bindA('equipamentos', i, 'circ'), e.circ, 'ex: C12', 'circAtual')}
+    </div>`).join('');
+
+  $('#form').innerHTML = `
+  <div class="card">
+    <div class="rowb"><h2 style="margin:0">${editId ? 'Editando poste' : 'Novo poste'}</h2>${editId ? '<button type="button" class="link" data-act="cancelar">Cancelar edição</button>' : ''}</div>
+    <label>Número do poste</label>
+    <input class="big" ${bindK('numero')} value="${esc(f.numero)}" autocomplete="off" autocapitalize="characters">
+    <label>Localização</label>
+    <div id="gpsBox"></div>
+    <div class="btnrow"><button type="button" class="btn primary" data-act="gps" id="gpsBtn">Capturar GPS</button><button type="button" class="btn" data-act="gpsManual">Digitar</button></div>
+    ${gpsManual ? `<div class="two" style="margin-top:8px"><input ${bindK('lat')} inputmode="decimal" placeholder="Latitude" value="${esc(br(f.lat))}"><input ${bindK('lon')} inputmode="decimal" placeholder="Longitude" value="${esc(br(f.lon))}"></div><p class="note">Graus decimais. Ex: -6,071234 e -50,123456</p>` : ''}
+    <label>Foto (opcional)</label>
+    ${foto ? `<div class="thumb"><img src="${foto}" alt="Foto do poste"><div><button type="button" class="btn" data-act="foto">Trocar</button> <button type="button" class="x" data-act="rmFoto">Remover</button></div></div>` : '<button type="button" class="btn" data-act="foto" style="width:100%">Tirar foto</button>'}
+  </div>
+
+  <div class="card">
+    <h2>Poste e circuitos</h2>
+    <label>Especificação do poste</label>${inp(bindK('espec'), f.espec, 'ex: 13/600', 'espec')}
+    <h3>Circuitos, posição e estrutura</h3>
+    ${circs}
+    <button type="button" class="btn block" data-act="addCirc">+ Adicionar circuito</button>
+    <label>Estado da montagem da estrutura</label>${seg(bindK('estEstado'), EST, f.estEstado)}
+    <label>Observação da estrutura</label>${inp(bindK('estObs'), f.estObs, 'opcional', '', 'autocapitalize="sentences"')}
+  </div>
+
+  <div class="card">
+    <h2>Equipamentos</h2>
+    <label>Possui transformador, religador ou chave SF6?</label>${seg(bindK('eq'), SN, f.eq)}
+    ${f.eq === 'Sim' ? `<div class="sub">${eqs}<button type="button" class="btn block" data-act="addEq">+ Adicionar equipamento</button></div>` : ''}
+  </div>
+
+  <div class="card">
+    <h2>Para-raios, aterramento e emenda</h2>
+    <label>Existe para-raios?</label>${seg(bindK('pr'), SN, f.pr)}
+    ${f.pr === 'Sim' ? `<div class="sub">
+      <label>Quantidade</label>${numero('prQtd', f.prQtd)}
+      <label>Estado da montagem do para-raios</label>${seg(bindK('prEstado'), EST, f.prEstado)}</div>` : ''}
+    <label>Existe ponto de aterramento temporário?</label>${seg(bindK('at'), SN, f.at)}
+    ${f.at === 'Sim' ? `<div class="sub">
+      <label>Em qual circuito?</label>${inp(bindK('atCirc'), f.atCirc, 'ex: C12', 'circAtual')}
+      <label>Estado do ponto de aterramento</label>${seg(bindK('atEstado'), EST, f.atEstado)}</div>` : ''}
+    <label>Existe emenda?</label>${seg(bindK('em'), SN, f.em)}
+    ${f.em === 'Sim' ? `<div class="sub">
+      <label>Em qual?</label>${inp(bindK('emLocal'), f.emLocal, 'circuito / fase', 'circAtual')}
+      <label>Estado da emenda</label>${seg(bindK('emEstado'), EST, f.emEstado)}</div>` : ''}
+  </div>
+
+  <div class="card">
+    <h2>Espaçadores</h2>
+    <label>Quantidade no vão anterior</label>${numero('espQtd', f.espQtd)}
+    <label>Modelo do espaçador</label>${inp(bindK('espModelo'), f.espModelo, 'modelo', 'espModelo')}
+  </div>
+
+  <div class="card">
+    <h2>Outras redes</h2>
+    <label>Existe baixa tensão?</label>${seg(bindK('bt'), SN, f.bt)}
+    <label>Existe iluminação viária?</label>${seg(bindK('ilum'), SN, f.ilum)}
+    <label>Existe fibra óptica?</label>${seg(bindK('fibra'), SN, f.fibra)}
+  </div>
+
+  <div class="card">
+    <h2>Ponto de atenção do poste</h2>
+    <textarea ${bindK('atencao')} placeholder="Descreva o que precisa de atenção. Dá para usar o microfone do teclado.">${esc(f.atencao)}</textarea>
+  </div>`;
+  renderGps(); atualizarTodosChips(); renderBar();
+}
+function numero(k, v) {
+  return `<div class="num"><button type="button" data-act="menos" data-k2="${k}">−</button><input ${bindK(k)} type="number" inputmode="numeric" min="0" value="${v ?? ''}" placeholder="0"><button type="button" data-act="mais" data-k2="${k}">+</button></div>`;
+}
+function renderBar() {
+  $('#bar').innerHTML = editId
+    ? '<button type="button" class="btn danger" data-act="excluir">Excluir</button><button type="button" class="btn primary" data-act="salvar">Salvar alterações</button>'
+    : '<button type="button" class="btn" data-act="copiar">Copiar anterior</button><button type="button" class="btn primary" data-act="salvar">Salvar poste</button>';
+}
+
+/* ---------- GPS ---------- */
+let watchId = null, gpsT = null, gpsMsg = '';
+function renderGps() {
+  const box = $('#gpsBox'); if (!box) return;
+  const btn = $('#gpsBtn');
+  if (btn) btn.textContent = watchId != null ? 'Parar GPS' : (f.lat != null ? 'Capturar de novo' : 'Capturar GPS');
+  let cls = 'gps', txt;
+  if (f.lat != null && f.lon != null) {
+    const ruim = f.acc != null && f.acc > 15;
+    cls += ruim ? ' warn' : ' ok';
+    txt = `<b>${f.lat.toFixed(6)}, ${f.lon.toFixed(6)}</b><br>${f.acc != null ? `Precisão: ${f.acc} m${ruim ? ' (acima de 15 m)' : ''}` : 'Coordenada digitada'}${watchId != null ? ' · melhorando...' : ''}`;
+  } else if (watchId != null) txt = 'Buscando sinal de GPS... fique em área aberta.';
+  else if (gpsMsg) { cls += ' err'; txt = gpsMsg; }
+  else txt = 'Sem localização.';
+  box.className = cls; box.innerHTML = txt;
+}
+function pararGps() { if (watchId != null) navigator.geolocation.clearWatch(watchId); watchId = null; clearTimeout(gpsT); renderGps(); }
+function iniciarGps() {
+  if (!navigator.geolocation) { gpsMsg = 'Este navegador não oferece GPS.'; renderGps(); return; }
+  pararGps(); gpsMsg = ''; let melhor = null;
+  watchId = navigator.geolocation.watchPosition(p => {
+    const c = p.coords;
+    if (!melhor || c.accuracy < melhor) {
+      melhor = c.accuracy; f.lat = +c.latitude.toFixed(7); f.lon = +c.longitude.toFixed(7);
+      f.acc = Math.round(c.accuracy * 10) / 10; f.gpsManual = false; salvarRascunho();
+    }
+    if (c.accuracy <= 5) pararGps(); else renderGps();
+  }, err => {
+    pararGps();
+    gpsMsg = err.code === 1 ? 'Permissão de localização negada. Libere a localização para este app nas configurações do navegador.' : 'Não foi possível obter o GPS. Tente de novo em área aberta.';
+    renderGps();
+  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 30000 });
+  gpsT = setTimeout(pararGps, 25000); // para sozinho em 25 s, mantendo a melhor leitura
+  renderGps();
+}
+
+/* ---------- rascunho (protege o poste em preenchimento) ---------- */
+function salvarRascunho() { try { localStorage.setItem('postes_rascunho', JSON.stringify({ f, editId, gpsManual })); } catch (e) {} }
+function limparRascunho() { try { localStorage.removeItem('postes_rascunho'); } catch (e) {} }
+
+/* ---------- eventos do formulário ---------- */
+document.addEventListener('input', e => {
+  const el = e.target; if (!el.closest('#form')) return;
+  if (el.dataset.k) {
+    const k = el.dataset.k;
+    if (k === 'lat' || k === 'lon') { f[k] = parseNum(el.value); f.acc = null; f.gpsManual = true; renderGps(); }
+    else if (k === 'prQtd' || k === 'espQtd') f[k] = el.value === '' ? null : Math.max(0, parseInt(el.value, 10) || 0);
+    else f[k] = el.value;
+  } else if (el.dataset.arr) f[el.dataset.arr][+el.dataset.i][el.dataset.p] = el.value;
+  atualizarTodosChips(); salvarRascunho();
+});
+
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.tab) return mostrarAba(t.dataset.tab);
+  if (t.dataset.chip != null) {
+    const input = t.parentElement.previousElementSibling; input.value = t.dataset.chip;
+    input.dispatchEvent(new Event('input', { bubbles: true })); return;
+  }
+  if (t.dataset.v != null) {
+    const v = t.dataset.v;
+    if (t.dataset.k) { const k = t.dataset.k; f[k] = f[k] === v ? '' : v; if (k === 'eq' && f.eq === 'Sim' && !f.equipamentos.length) f.equipamentos.push(eqVazio()); }
+    else { const o = f[t.dataset.arr][+t.dataset.i], p = t.dataset.p; o[p] = o[p] === v ? '' : v; }
+    renderForm(); salvarRascunho(); return;
+  }
+  const a = t.dataset.act; if (!a) return;
+  const acoes = {
+    gps: () => watchId != null ? pararGps() : iniciarGps(),
+    gpsManual: () => { gpsManual = !gpsManual; renderForm(); },
+    foto: () => $('#fotoIn').click(),
+    rmFoto: () => { foto = null; fotoMudou = true; renderForm(); },
+    addCirc: () => { f.circuitos.push(circVazio()); renderForm(); salvarRascunho(); },
+    rmCirc: () => { f.circuitos.splice(+t.dataset.i, 1); renderForm(); salvarRascunho(); },
+    addEq: () => { f.equipamentos.push(eqVazio()); renderForm(); salvarRascunho(); },
+    rmEq: () => { f.equipamentos.splice(+t.dataset.i, 1); if (!f.equipamentos.length) f.eq = ''; renderForm(); salvarRascunho(); },
+    mais: () => { const k = t.dataset.k2; f[k] = (f[k] || 0) + 1; renderForm(); salvarRascunho(); },
+    menos: () => { const k = t.dataset.k2; f[k] = Math.max(0, (f[k] || 0) - 1); renderForm(); salvarRascunho(); },
+    copiar: copiarAnterior, salvar: salvar, excluir: excluir, cancelar: cancelarEdicao,
+    relatorio: abrirRelatorio, fecharRel: () => $('#relView').classList.remove('on'), gerarPdf: gerarPDF, pdfPasta: pdfSalvarPasta, pdfBaixar: pdfBaixarArq, pdfFechar: () => $('#pdfDlg').classList.remove('on'),
+    baixarRel: () => baixar(`relatorio_postes_${hoje()}.html`, relatorioArquivo(), 'text/html;charset=utf-8'),
+    kml: exportarKML, csv: exportarCSV, backup: fazerBackup, importar: () => $('#impIn').click(), instalar: instalar,
+  };
+  if (acoes[a]) acoes[a]();
+});
+
+$('#fotoIn').addEventListener('change', async e => {
+  const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+  try { foto = await comprimir(file); fotoMudou = true; renderForm(); } catch (err) { toast('Não foi possível ler a foto.'); }
+});
+function comprimir(file) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const m = 1280, s = Math.min(1, m / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.6));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(); }; img.src = url;
+  });
+}
+
+/* ---------- ações ---------- */
+function ultimoPoste() { return postes.reduce((m, p) => !m || p.criadoEm > m.criadoEm ? p : m, null); }
+function copiarAnterior() {
+  const u = ultimoPoste(); if (!u) return toast('Ainda não há poste salvo para copiar.');
+  const keep = { numero: f.numero, lat: f.lat, lon: f.lon, acc: f.acc, gpsManual: f.gpsManual, atencao: f.atencao };
+  f = Object.assign(vazio(), clone(u), keep);
+  delete f.id; delete f.criadoEm; delete f.atualizadoEm; delete f.temFoto;
+  if (!f.circuitos.length) f.circuitos = [circVazio()];
+  renderForm(); salvarRascunho(); toast(`Dados copiados do poste ${u.numero}. Confira antes de salvar.`, 3500);
+}
+function limpar(p) {
+  p.numero = p.numero.trim();
+  p.circuitos = p.circuitos.filter(c => c.id.trim() || c.pos || c.estr.trim());
+  if (p.eq !== 'Sim') p.equipamentos = []; else p.equipamentos = p.equipamentos.filter(e => e.tipo || e.modelo || e.tag || e.espec || e.circ);
+  if (p.pr !== 'Sim') { p.prQtd = null; p.prEstado = ''; }
+  if (p.at !== 'Sim') { p.atCirc = ''; p.atEstado = ''; }
+  if (p.em !== 'Sim') { p.emLocal = ''; p.emEstado = ''; }
+  return p;
+}
+async function salvar() {
+  if (!f.numero.trim()) { toast('Informe o número do poste.'); document.querySelector('[data-k="numero"]').focus(); return; }
+  const dup = postes.find(p => p.numero.toLowerCase() === f.numero.trim().toLowerCase() && p.id !== editId);
+  if (dup && !confirm(`Já existe um poste com o número ${dup.numero}. Salvar mesmo assim?`)) return;
+  if (f.lat == null || f.lon == null) { if (!confirm('Este poste está sem localização e não vai aparecer no Google Earth. Salvar mesmo assim?')) return; }
+  else if (f.acc != null && f.acc > 15 && !confirm(`A precisão do GPS está em ${f.acc} m. Salvar mesmo assim?`)) return;
+  pararGps();
+  const agora = new Date().toISOString();
+  const antigo = editId ? postes.find(p => p.id === editId) : null;
+  const p = limpar(Object.assign(clone(f), { id: editId || uid(), criadoEm: antigo ? antigo.criadoEm : agora, atualizadoEm: agora }));
+  p.temFoto = fotoMudou ? !!foto : !!(antigo && antigo.temFoto);
+  try {
+    await dbSalvar(p);
+    if (fotoMudou) { if (foto) await fotoSalvar(p.id, foto); else await fotoExcluir(p.id); }
+  } catch (err) { toast('Erro ao salvar. Tente de novo.'); return; }
+  if (antigo) postes[postes.indexOf(antigo)] = p; else postes.push(p);
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  calcSug(); atualizarContagem(); limparRascunho();
+  const eraEdicao = !!editId; novoFormulario();
+  toast(`Poste ${p.numero} salvo.`);
+  if (eraEdicao) mostrarAba('lista'); else window.scrollTo(0, 0);
+}
+function novoFormulario() { editId = null; foto = null; fotoMudou = false; gpsManual = false; gpsMsg = ''; f = vazio(); f.numero = proximoNumero(); renderForm(); }
+async function editar(id) {
+  const p = postes.find(x => x.id === id); if (!p) return;
+  pararGps(); editId = id; f = Object.assign(vazio(), clone(p)); delete f.id;
+  if (!f.circuitos.length) f.circuitos = [circVazio()];
+  gpsManual = !!p.gpsManual; foto = p.temFoto ? (await fotoLer(id)) || null : null; fotoMudou = false;
+  renderForm(); mostrarAba('cad'); window.scrollTo(0, 0);
+}
+function cancelarEdicao() { pararGps(); limparRascunho(); novoFormulario(); mostrarAba('lista'); }
+async function excluir() {
+  const p = postes.find(x => x.id === editId); if (!p) return;
+  if (!confirm(`Excluir o poste ${p.numero}? Isso não pode ser desfeito.`)) return;
+  await dbExcluir(p.id); await fotoExcluir(p.id).catch(() => {});
+  postes = postes.filter(x => x.id !== p.id); calcSug(); atualizarContagem(); limparRascunho();
+  novoFormulario(); mostrarAba('lista'); toast(`Poste ${p.numero} excluído.`);
+}
+
+/* ---------- abas e lista ---------- */
+function mostrarAba(nome) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === nome));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + nome));
+  $('#bar').style.display = nome === 'cad' ? 'flex' : 'none';
+  if (nome === 'lista') renderLista();
+  if (nome === 'exp') renderExp();
+  window.scrollTo(0, 0);
+}
+function atualizarContagem() { $('#cont').textContent = `${postes.length} ${postes.length === 1 ? 'poste' : 'postes'}`; }
+function renderLista() {
+  const q = $('#q').value.trim().toLowerCase();
+  let arr = [...postes].sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
+  if (q) arr = arr.filter(p => p.numero.toLowerCase().includes(q) || circTxt(p).toLowerCase().includes(q));
+  const LIM = 150, total = arr.length; arr = arr.slice(0, LIM);
+  $('#lista').innerHTML = !postes.length ? '<p class="note" style="text-align:center">Nenhum poste cadastrado ainda.</p>' :
+    arr.map(p => `<button class="item" data-id="${p.id}"><div class="n">${esc(p.numero)}${p.lat == null ? '<span class="tag w">sem GPS</span>' : ''}${motivos(p).length ? '<span class="tag r">atenção</span>' : ''}${p.temFoto ? '<span class="tag g">foto</span>' : ''}</div><div class="s">${esc(fmtData(p.criadoEm))}${circTxt(p) ? ' · ' + esc(circTxt(p)) : ''}</div></button>`).join('')
+    + (total > LIM ? `<p class="note" style="text-align:center">Mostrando ${LIM} de ${total}. Use a busca para encontrar os demais.</p>` : '')
+    + (q && !total ? '<p class="note" style="text-align:center">Nada encontrado.</p>' : '');
+}
+$('#q').addEventListener('input', renderLista);
+$('#lista').addEventListener('click', e => { const b = e.target.closest('.item'); if (b) editar(b.dataset.id); });
+
+function renderExp() {
+  const comGps = postes.filter(temGps).length, aten = postes.filter(p => motivos(p).length).length;
+  $('#stats').innerHTML = [[postes.length, 'postes cadastrados'], [comGps, 'com localização'], [postes.length - comGps, 'sem localização'], [aten, 'com ponto de atenção ou estado ruim']]
+    .map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
+  $('#cfgPre').value = cfg.prefixo; $('#cfgDig').value = cfg.digitos; exemploCfg();
+  $('#install').style.display = eventoInstalar ? 'block' : 'none';
+}
+function exemploCfg() { $('#cfgEx').textContent = `Próximo número: ${proximoNumero()}`; }
+$('#cfgPre').addEventListener('input', e => { cfg.prefixo = e.target.value; guardarCfg(); });
+$('#cfgDig').addEventListener('input', e => { const n = parseInt(e.target.value, 10); if (n >= 1 && n <= 8) { cfg.digitos = n; guardarCfg(); } });
+function guardarCfg() { try { localStorage.setItem('postes_cfg', JSON.stringify(cfg)); } catch (e) {} exemploCfg(); if (!editId) { f.numero = proximoNumero(); renderForm(); } }
+
+/* ---------- textos usados em todas as saídas ---------- */
+const temGps = p => p.lat != null && p.lon != null;
+const circTxt = p => (p.circuitos || []).filter(c => c.id || c.pos).map(c => [c.id, c.pos].filter(Boolean).join(' ')).join(' | ');
+const estrTxt = p => (p.circuitos || []).filter(c => c.estr).map(c => c.estr + (c.id ? ` (${c.id})` : '')).join(' | ');
+const eqTxt = p => p.eq === 'Sim' ? ((p.equipamentos || []).map(e => [e.tipo, e.modelo, e.tag && 'TAG ' + e.tag, e.espec, e.circ && `(${e.circ})`].filter(Boolean).join(' ')).join(' | ') || 'Sim') : (p.eq || '');
+function motivos(p) {
+  const m = [];
+  if (p.estEstado === 'Ruim') m.push('Estrutura em estado ruim');
+  if (p.pr === 'Sim' && p.prEstado === 'Ruim') m.push('Para-raios em estado ruim');
+  if (p.at === 'Sim' && p.atEstado === 'Ruim') m.push('Aterramento temporário em estado ruim');
+  if (p.em === 'Sim' && p.emEstado === 'Ruim') m.push('Emenda em estado ruim');
+  if ((p.atencao || '').trim()) m.push(p.atencao.trim());
+  return m;
+}
+function linhas(p) {
+  return [
+    ['Especificação do poste', p.espec],
+    ['Circuitos e posição', circTxt(p)],
+    ['Estruturas', estrTxt(p)],
+    ['Equipamentos', eqTxt(p)],
+    ['Estado da montagem da estrutura', p.estEstado],
+    ['Observação da estrutura', p.estObs],
+    ['Para-raios', p.pr === 'Sim' ? `Sim${p.prQtd != null ? ` (${p.prQtd})` : ''}` : p.pr],
+    ['Estado do para-raios', p.prEstado],
+    ['Aterramento temporário', p.at === 'Sim' ? `Sim${p.atCirc ? ' – ' + p.atCirc : ''}` : p.at],
+    ['Estado do aterramento', p.atEstado],
+    ['Emenda', p.em === 'Sim' ? `Sim${p.emLocal ? ' – ' + p.emLocal : ''}` : p.em],
+    ['Estado da emenda', p.emEstado],
+    ['Espaçadores no vão anterior', p.espQtd ?? ''],
+    ['Modelo do espaçador', p.espModelo],
+    ['Baixa tensão', p.bt],
+    ['Iluminação viária', p.ilum],
+    ['Fibra óptica', p.fibra],
+    ['Ponto de atenção', p.atencao],
+    ['Data do cadastro', fmtData(p.criadoEm)],
+    ['Precisão do GPS', p.acc != null ? br(p.acc) + ' m' : (p.gpsManual && temGps(p) ? 'digitada' : '')],
+    ['Foto', p.temFoto ? 'Sim' : 'Não'],
+  ];
+}
+const ordenados = () => [...postes].sort((a, b) => a.numero.localeCompare(b.numero, 'pt-BR', { numeric: true }));
+
+/* ---------- download ---------- */
+function baixar(nome, conteudo, tipo) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([conteudo], { type: tipo })); a.download = nome;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+}
+
+/* ---------- KML (Google Earth) ---------- */
+function exportarKML() {
+  if (!postes.length) return toast('Nenhum poste cadastrado.');
+  const x = s => esc(s), cd = s => String(s).replace(/]]>/g, ']]]]><![CDATA[>');
+  const lista = ordenados().filter(temGps), semGps = postes.length - lista.length;
+  if (!lista.length) return toast('Nenhum poste tem localização.');
+  const pm = p => {
+    const ls = linhas(p), m = motivos(p);
+    const desc = `<table border="1" cellpadding="3" cellspacing="0" style="border-collapse:collapse;font-size:12px">${ls.filter(l => l[1] !== '' && l[1] != null).map(([k, v]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>`).join('')}</table>`;
+    return `<Placemark><name>${x(p.numero)}</name><styleUrl>#${m.length ? 'atencao' : 'normal'}</styleUrl>
+<description><![CDATA[${cd(desc)}]]></description>
+<ExtendedData>${ls.map(([k, v]) => `<Data name="${x(k)}"><value>${x(v)}</value></Data>`).join('')}</ExtendedData>
+<Point><coordinates>${p.lon},${p.lat},0</coordinates></Point></Placemark>`;
+  };
+  const aten = lista.filter(p => motivos(p).length), demais = lista.filter(p => !motivos(p).length);
+  const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Levantamento de postes – ${hoje()}</name>
+<Style id="normal"><IconStyle><scale>0.9</scale><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href></Icon></IconStyle><LabelStyle><scale>0.8</scale></LabelStyle></Style>
+<Style id="atencao"><IconStyle><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style>
+<Folder><name>Com ponto de atenção ou estado ruim (${aten.length})</name>${aten.map(pm).join('\n')}</Folder>
+<Folder><name>Demais postes (${demais.length})</name>${demais.map(pm).join('\n')}</Folder>
+</Document></kml>`;
+  baixar(`postes_${hoje()}.kml`, kml, 'application/vnd.google-earth.kml+xml');
+  toast(semGps ? `KML gerado com ${lista.length} postes. ${semGps} sem localização ficaram de fora.` : `KML gerado com ${lista.length} postes.`, 4000);
+}
+
+/* ---------- CSV ---------- */
+function exportarCSV() {
+  if (!postes.length) return toast('Nenhum poste cadastrado.');
+  const c = v => { v = String(v ?? ''); return /[;"\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
+  const cab = ['Número', 'Latitude', 'Longitude', ...linhas(postes[0]).map(l => l[0])];
+  const rows = ordenados().map(p => [p.numero, br(p.lat), br(p.lon), ...linhas(p).map(l => l[1])].map(c).join(';'));
+  baixar(`postes_${hoje()}.csv`, '﻿' + [cab.map(c).join(';'), ...rows].join('\r\n'), 'text/csv;charset=utf-8');
+  toast(`Planilha gerada com ${postes.length} postes.`);
+}
+
+/* ---------- backup ---------- */
+async function fazerBackup() {
+  if (!postes.length) return toast('Nenhum poste cadastrado.');
+  const comFotos = $('#bkFotos').checked;
+  const dados = { app: 'levantamento-postes', versao: 1, exportadoEm: new Date().toISOString(), config: cfg, postes, fotos: comFotos ? await fotosTodas() : {} };
+  baixar(`backup_postes_${hoje()}${comFotos ? '_com_fotos' : ''}.json`, JSON.stringify(dados), 'application/json');
+  toast('Backup gerado.');
+}
+$('#impIn').addEventListener('change', async e => {
+  const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+  let d; try { d = JSON.parse(await file.text()); } catch (err) { return toast('Arquivo inválido.'); }
+  if (d.app !== 'levantamento-postes' || !Array.isArray(d.postes)) return toast('Este arquivo não é um backup deste app.');
+  const ids = new Set(postes.map(p => p.id)), repetidos = d.postes.filter(p => ids.has(p.id)).length;
+  if (!confirm(`Restaurar ${d.postes.length} postes${repetidos ? ` (${repetidos} já existem e serão substituídos pela versão do backup)` : ''}?`)) return;
+  for (const p of d.postes) await dbSalvar(Object.assign(vazio(), p));
+  for (const [id, data] of Object.entries(d.fotos || {})) await fotoSalvar(id, data);
+  postes = await dbTodos(); calcSug(); atualizarContagem(); renderExp();
+  if (!editId) { f.numero = proximoNumero(); renderForm(); }
+  toast(`${d.postes.length} postes restaurados.`);
+});
+
+/* ---------- relatório final ---------- */
+function contar(lista, fn) { const m = new Map(); for (const p of lista) for (const v of [].concat(fn(p))) { const k = String(v ?? '').trim(); if (k) m.set(k, (m.get(k) || 0) + 1); } return [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR', { numeric: true })); }
+const tabela = (cab, rows, cls = '') => `<table class="${cls}"><thead><tr>${cab.map(h => `<th${/^(Qtd|Postes|Bom|Regular|Ruim|Sem|Total|Unid)/.test(h) ? ' class="n"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.map(r => `<tr>${r.map((v, i) => `<td${typeof v === 'number' ? ' class="n"' : ''}>${typeof v === 'number' ? v : esc(v)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${cab.length}" class="vazio">Nenhum registro.</td></tr>`}</tbody></table>`;
+function dadosRelatorio() {
+  const L = ordenados(), n = L.length;
+  const datas = L.map(p => p.criadoEm).sort();
+  const comGps = L.filter(temGps), imprecisos = L.filter(p => p.acc != null && p.acc > 15);
+  const aten = L.filter(p => motivos(p).length);
+  const somar = fn => L.reduce((s, p) => s + (fn(p) || 0), 0);
+  const est = (nome, base, campo) => { const b = L.filter(base); const q = v => b.filter(p => p[campo] === v).length; return [nome, b.length, q('Bom'), q('Regular'), q('Ruim'), b.length - q('Bom') - q('Regular') - q('Ruim')]; };
+  const sim = k => L.filter(p => p[k] === 'Sim').length;
+  const eqLista = L.flatMap(p => p.eq === 'Sim' ? (p.equipamentos || []).map(e => [p.numero, e.tipo, e.modelo, e.tag, e.espec, e.circ]) : []);
+  const periodo = n ? (fmtData(datas[0]).slice(0, 10) === fmtData(datas[n - 1]).slice(0, 10) ? fmtData(datas[0]).slice(0, 10) : `${fmtData(datas[0]).slice(0, 10)} a ${fmtData(datas[n - 1]).slice(0, 10)}`) : '–';
+  return {
+    titulo: 'Levantamento de postes – relatório final',
+    meta: `Período do levantamento: ${periodo} · Gerado em ${fmtData(new Date().toISOString())}`,
+    kpis: [[n, 'postes cadastrados'], [comGps.length, 'com localização'], [n - comGps.length, 'sem localização'], [imprecisos.length, 'GPS acima de 15 m'], [aten.length, 'com ponto de atenção ou estado ruim', 'am'], [L.filter(p => p.temFoto).length, 'com foto']],
+    secoes: [
+      { t: 'Postes que exigem atenção', cab: ['Poste', 'Latitude', 'Longitude', 'Circuitos', 'Motivo'], rows: aten.map(p => [p.numero, temGps(p) ? p.lat.toFixed(6) : '–', temGps(p) ? p.lon.toFixed(6) : '–', circTxt(p), motivos(p).join('; ')]) },
+      { t: 'Estado das montagens', cab: ['Item', 'Total avaliado', 'Bom', 'Regular', 'Ruim', 'Sem avaliação'], rows: [
+        est('Estrutura', () => true, 'estEstado'), est('Para-raios', p => p.pr === 'Sim', 'prEstado'),
+        est('Aterramento temporário', p => p.at === 'Sim', 'atEstado'), est('Emenda', p => p.em === 'Sim', 'emEstado')] },
+      { t: 'Especificação dos postes', col: 1, cab: ['Especificação', 'Postes'], rows: contar(L, p => p.espec || '(não informada)') },
+      { t: 'Circuitos', col: 1, cab: ['Circuito', 'Postes'], rows: contar(L, p => [...new Set((p.circuitos || []).map(c => c.id.trim()).filter(Boolean))]) },
+      { t: 'Estruturas', col: 1, cab: ['Estrutura', 'Qtd'], rows: contar(L, p => (p.circuitos || []).map(c => c.estr)) },
+      { t: 'Itens instalados', col: 1, cab: ['Item', 'Total'], rows: [
+        ['Postes com para-raios', sim('pr')], ['Para-raios (unidades)', somar(p => p.pr === 'Sim' ? p.prQtd : 0)],
+        ['Postes com aterramento temporário', sim('at')], ['Postes com emenda', sim('em')],
+        ['Espaçadores (soma dos vãos)', somar(p => p.espQtd)], ['Postes com baixa tensão', sim('bt')],
+        ['Postes com iluminação viária', sim('ilum')], ['Postes com fibra óptica', sim('fibra')]] },
+      { t: 'Modelos de espaçador', col: 1, cab: ['Modelo', 'Postes'], rows: contar(L, p => p.espModelo) },
+      { t: 'Equipamentos por tipo', col: 1, cab: ['Tipo', 'Qtd'], rows: contar(eqLista.map(e => ({ t: e[1] || '(sem tipo)' })), e => e.t) },
+      { t: 'Equipamentos cadastrados', cab: ['Poste', 'Tipo', 'Modelo', 'TAG', 'Especificação', 'Circuito'], rows: eqLista },
+      { t: 'Relação completa dos postes', full: 1, cab: ['Poste', 'Latitude', 'Longitude', 'Espec.', 'Circuitos', 'Estruturas', 'Estado estr.', 'Para-raios', 'Aterr.', 'Emenda', 'Espaç.', 'BT', 'Ilum.', 'Fibra'],
+        rows: L.map(p => [p.numero, temGps(p) ? p.lat.toFixed(6) : '–', temGps(p) ? p.lon.toFixed(6) : '–', p.espec, circTxt(p), estrTxt(p), p.estEstado,
+          p.pr === 'Sim' ? `${p.prQtd ?? ''} ${p.prEstado}`.trim() || 'Sim' : p.pr, p.at === 'Sim' ? [p.atCirc, p.atEstado].filter(Boolean).join(' ') || 'Sim' : p.at,
+          p.em === 'Sim' ? [p.emLocal, p.emEstado].filter(Boolean).join(' ') || 'Sim' : p.em, p.espQtd ?? '', p.bt, p.ilum, p.fibra]) },
+    ],
+  };
+}
+function relatorioHTML() {
+  const d = dadosRelatorio();
+  let corpo = '', cols = '';
+  const fecharCols = () => { if (cols) { corpo += `<div class="cols">${cols}</div>`; cols = ''; } };
+  for (const sc of d.secoes) {
+    const bloco = `<h2>${esc(sc.t)}</h2>${tabela(sc.cab, sc.rows, sc.full ? 'full' : '')}`;
+    if (sc.col) cols += `<div>${bloco}</div>`; else { fecharCols(); corpo += bloco; }
+  }
+  fecharCols();
+  return `<div class="rel">
+<div class="cab">${logoVale ? `<img src="${logoVale.url}" alt="Vale">` : ''}<div><h1>${esc(d.titulo)}</h1><p class="meta">${esc(d.meta)}</p></div></div>
+<div class="faixa"></div>
+<div class="kpis">${d.kpis.map(k => `<div class="kpi${k[2] ? ' ' + k[2] : ''}"><b>${k[0]}</b>${esc(k[1])}</div>`).join('')}</div>
+${corpo}
+</div>`;
+}
+
+/* ---------- logo da Vale (arquivo logo-vale.png na pasta do app) ---------- */
+let logoVale = null;
+async function carregarLogo() {
+  try {
+    const r = await fetch('logo-vale.png'); if (!r.ok) return;
+    const blob = await r.blob(); if (!/^image\//.test(blob.type)) return;
+    const url = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    logoVale = { url, w: img.naturalWidth, h: img.naturalHeight };
+  } catch (e) { logoVale = null; }
+}
+
+/* ---------- PDF ---------- */
+const VALE = { verde: [0, 128, 124], amarelo: [238, 167, 34], cinza: [119, 120, 123], claro: [242, 248, 248], linha: [213, 222, 222] };
+function carregarScript(src) {
+  return new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`)) return res(); const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+}
+// As fontes padrão do PDF cobrem os acentos do português; troca só o que ficaria ilegível.
+const pdfTxt = v => String(v ?? '').replace(/[–—]/g, '-').replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/[^\x00-\xFF]/g, '');
+let pdfArq = null;
+async function gerarPDF() {
+  if (!postes.length) return toast('Nenhum poste cadastrado.');
+  toast('Gerando PDF...', 10000);
+  try {
+    if (!window.jspdf) await carregarScript('jspdf.umd.min.js');
+    if (!window.jspdf.jsPDF.API.autoTable) await carregarScript('jspdf.plugin.autotable.min.js');
+  } catch (e) { return toast('Não foi possível carregar o gerador de PDF. Abra o app uma vez com internet.'); }
+  const d = dadosRelatorio();
+  const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 10, TOPO = 30;
+  let y = TOPO;
+  const novaPagSe = alt => { if (y + alt > H - 14) { doc.addPage(); y = TOPO; } };
+
+  // indicadores
+  const kw = (W - 2 * M - 5 * 4) / 6;
+  d.kpis.forEach((k, i) => {
+    const x = M + i * (kw + 4);
+    doc.setDrawColor(...VALE.linha); doc.setFillColor(255, 255, 255); doc.rect(x, y, kw, 15, 'FD');
+    doc.setFillColor(...(k[2] ? VALE.amarelo : VALE.verde)); doc.rect(x, y, 1.4, 15, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(...VALE.verde); doc.text(String(k[0]), x + 4, y + 7);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...VALE.cinza); doc.text(doc.splitTextToSize(pdfTxt(k[1]), kw - 6), x + 4, y + 11);
+  });
+  y += 21;
+
+  const tabelaPdf = (sc, larg) => {
+    novaPagSe(16);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...VALE.verde); doc.text(pdfTxt(sc.t), M, y);
+    doc.setDrawColor(...VALE.verde); doc.setLineWidth(0.4); doc.line(M, y + 1.5, M + (larg || W - 2 * M), y + 1.5);
+    const num = sc.cab.map((h, i) => sc.rows.length && sc.rows.every(r => typeof r[i] === 'number'));
+    doc.autoTable({
+      startY: y + 3, margin: { left: M, right: M, top: TOPO, bottom: 14 }, tableWidth: larg || 'auto',
+      head: [sc.cab.map(pdfTxt)],
+      body: sc.rows.length ? sc.rows.map(r => r.map(pdfTxt)) : [[{ content: 'Nenhum registro.', colSpan: sc.cab.length, styles: { textColor: VALE.cinza } }]],
+      theme: 'grid', showHead: 'everyPage', rowPageBreak: 'avoid',
+      styles: { font: 'helvetica', fontSize: sc.full ? 7 : 8, cellPadding: 1.2, lineColor: VALE.linha, lineWidth: 0.2, textColor: [31, 42, 42], overflow: 'linebreak' },
+      headStyles: { fillColor: VALE.verde, textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: VALE.claro },
+      columnStyles: Object.fromEntries(num.map((v, i) => [i, v ? { halign: 'right' } : {}])),
+    });
+    y = doc.lastAutoTable.finalY + 7;
+  };
+  for (const sc of d.secoes) tabelaPdf(sc, sc.col ? 130 : 0);
+
+  // cabeçalho e rodapé em todas as páginas
+  const tot = doc.getNumberOfPages();
+  for (let i = 1; i <= tot; i++) {
+    doc.setPage(i);
+    let xT = M;
+    if (logoVale) { const lh = 12, lw = lh * logoVale.w / logoVale.h; doc.addImage(logoVale.url, /jpe?g/i.test(logoVale.url.slice(5, 20)) ? 'JPEG' : 'PNG', M, 8, lw, lh, 'logoVale', 'FAST'); xT = M + lw + 6; }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(...VALE.verde); doc.text(pdfTxt(d.titulo), xT, 13.5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...VALE.cinza); doc.text(pdfTxt(d.meta), xT, 18.5);
+    const fx = W - 2 * M;
+    doc.setFillColor(...VALE.verde); doc.rect(M, 22, fx * 0.82, 1.6, 'F');
+    doc.setFillColor(...VALE.amarelo); doc.rect(M + fx * 0.82, 22, fx * 0.18, 1.6, 'F');
+    doc.setFontSize(7.5); doc.setTextColor(...VALE.cinza);
+    doc.text('Levantamento de postes', M, H - 6);
+    doc.text(`Página ${i} de ${tot}`, W - M, H - 6, { align: 'right' });
+  }
+  pdfArq = { nome: `relatorio_postes_${hoje()}.pdf`, blob: doc.output('blob') };
+  $('#toast').classList.remove('on');
+  $('#pdfNome').textContent = `${pdfArq.nome} · ${tot} ${tot === 1 ? 'página' : 'páginas'}`;
+  $('#pdfDlg').classList.add('on');
+}
+// Computador (Chrome/Edge): abre a janela "Salvar como" para escolher a pasta.
+// Celular: abre o menu de compartilhar, onde dá para escolher Drive, Arquivos e outros destinos.
+async function pdfSalvarPasta() {
+  if (!pdfArq) return;
+  if (window.showSaveFilePicker) {
+    try {
+      const h = await window.showSaveFilePicker({ suggestedName: pdfArq.nome, types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }] });
+      const w = await h.createWritable(); await w.write(pdfArq.blob); await w.close();
+      $('#pdfDlg').classList.remove('on'); return toast('PDF salvo na pasta escolhida.');
+    } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const file = new File([pdfArq.blob], pdfArq.nome, { type: 'application/pdf' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: pdfArq.nome }); $('#pdfDlg').classList.remove('on'); return; }
+    catch (e) { if (e.name === 'AbortError') return; }
+  }
+  toast('Este aparelho não permite escolher a pasta. O PDF foi para Downloads.', 4000); pdfBaixarArq();
+}
+function pdfBaixarArq() { if (!pdfArq) return; baixar(pdfArq.nome, pdfArq.blob, 'application/pdf'); $('#pdfDlg').classList.remove('on'); }
+function abrirRelatorio() {
+  if (!postes.length) return toast('Nenhum poste cadastrado.');
+  $('#relBody').innerHTML = relatorioHTML(); $('#relView').classList.add('on'); $('#relView').scrollTop = 0;
+}
+function relatorioArquivo() {
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatório – levantamento de postes</title><style>${$('#relCss').textContent}</style></head><body>${relatorioHTML()}</body></html>`;
+}
+
+/* ---------- instalação ---------- */
+let eventoInstalar = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); eventoInstalar = e; $('#install').style.display = 'block'; });
+async function instalar() { if (!eventoInstalar) return; eventoInstalar.prompt(); await eventoInstalar.userChoice; eventoInstalar = null; $('#install').style.display = 'none'; }
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+
+/* ---------- início ---------- */
+(async function iniciar() {
+  try { await abrirDB(); postes = await dbTodos(); }
+  catch (err) { document.body.innerHTML = '<p style="padding:20px">Não foi possível abrir o armazenamento do navegador. Feche a aba anônima ou libere o armazenamento de dados do site.</p>'; return; }
+  calcSug(); atualizarContagem(); carregarLogo();
+  let r = null; try { r = JSON.parse(localStorage.getItem('postes_rascunho') || 'null'); } catch (e) {}
+  if (r && r.f) {
+    f = Object.assign(vazio(), r.f); editId = r.editId && postes.some(p => p.id === r.editId) ? r.editId : null; gpsManual = !!r.gpsManual;
+    if (editId) { const p = postes.find(x => x.id === editId); foto = p.temFoto ? (await fotoLer(editId)) || null : null; }
+    renderForm(); toast('O poste que estava em preenchimento foi recuperado.', 3500);
+  } else novoFormulario();
+  mostrarAba('cad');
+})();
+</script>
+</body>
+</html>
